@@ -112,3 +112,5 @@ flask_demo/static/upload_img/
 
 .idea/
 app/utils/facenet_test.py
+
+app/P_lab/

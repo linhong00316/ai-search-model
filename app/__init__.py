@@ -76,15 +76,25 @@ def index():
         return render_template('Index.html', flag=0)
     elif request.method == 'POST':
         # 获取用户上传的图片，保存；并且保留图片流返回给前端显示
+        upload_path = "app/static/upload_img/upload_pil_" + str(int(time.time())) + ".jpg"
         fp = request.files.get('file')
-        img = fp.read()
-        byte_stream = io.BytesIO(img)
-        im_pil = Image.open(byte_stream)
+        fp.save(upload_path)
+
+        # img = fp.read()
+        # print(img)
+        # byte_stream = io.BytesIO(img)
+        # print(byte_stream)
+
+
+        im_pil = Image.open(upload_path)
         print(im_pil.width)
         print(im_pil.height)
-        upload_path = "app/static/upload_img/upload_pil_"+str(int(time.time()))+".jpg"
-        # The path of upload image.
-        im_pil.save(upload_path)
+
+        # # The path of upload image.
+        # im_pil.save(upload_path)
+        imgByteArr = io.BytesIO()
+        im_pil.save(imgByteArr,format='JPEG')
+        imgByteArr = imgByteArr.getvalue()
 
         search_mode = request.form.get('search_mode')
         return_num = request.form.get('return_num')
@@ -101,17 +111,17 @@ def index():
             print("Start Face Comparision.")
             top6ModelsInfo = Face_comparision_api(upload_encoding)
             return render_template('Index.html', flag=1,
-                                   img_rtn=base64.b64encode(img).decode('utf-8'),
+                                   img_rtn=base64.b64encode(imgByteArr).decode('utf-8'),
                                    top6ModelsInfo = top6ModelsInfo
                                    )
         elif search_mode=="2" and (app.config['IS_FA_NET_USED'] == True):
             # Face attribute detection.
-            attr_result = FA_detect_api("flask_demo/static/upload_img/upload_pil.jpg")
+            attr_result = FA_detect_api(upload_path)
             print("result jsonify print:")
             print(attr_result)
             return render_template('Index.html', flag=1,
                                    attr_result=attr_result,
-                                   img_rtn=base64.b64encode(img).decode('utf-8'),
+                                   img_rtn=base64.b64encode(imgByteArr).decode('utf-8'),
                                    )
         else:
             return render_template('404.html')
