@@ -114,3 +114,5 @@ flask_demo/static/upload_img/
 app/utils/facenet_test.py
 
 app/P_lab/
+
+app/templates/ajax_test.html

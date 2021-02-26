@@ -12,13 +12,15 @@ body {
 }
 
 .section {
-    margin: .5rem 1rem;
+    margin: .5rem .5rem;
     -webkit-box-flex: 1;
     -ms-flex-positive: 1;
     flex-grow: 1;
     width: 35%;
+    border: 2px dashed deepskyblue;
 }
-.result_section{
+
+.result_section {
     margin: .5rem 1rem;
     -webkit-box-flex: 1;
     -ms-flex-positive: 1;
@@ -60,6 +62,9 @@ body {
 .top-5 {
     /*display: -webkit-box;*/
     display: grid;
+    background: skyblue;
+    box-shadow: 0 3px 3px rgba(0, 0, 0, .2);
+    border-radius: 15px;
 }
 
 .func_name {
@@ -144,7 +149,8 @@ body {
     transition-duration: .4s;
     cursor: pointer;
 }
-#submit_btn:disabled{
+
+#submit_btn:disabled {
     background-color: gray;
 }
 
@@ -162,7 +168,8 @@ form {
     text-align: left;
     font-size: 15px;
 }
-.h3_info_name{
+
+.h3_info_name {
     font-family: Microsoft YaHei UI Light, sans-serif;
     margin: .5rem .5rem;
     text-align: left;

@@ -1,6 +1,7 @@
 function show_selectedImage() {
     /// get select files.
     var selected_files = document.getElementById("select_pic").files;
+    console.log(document.getElementById("select_pic").files)
     for (var file of selected_files) {
         /// console.log(file.webkitRelativePath);
 
@@ -20,8 +21,9 @@ function show_selectedImage() {
                 var h = img.height;
                 var cxt = canvas.getContext('2d');
                 cxt.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
-                cxt.drawImage(img, (canvas.clientWidth - w) / 2, (canvas.clientHeight - h) / 2);
+                cxt.drawImage(img, Math.abs(canvas.clientWidth - w) / 2, Math.abs(canvas.clientHeight - h) / 2);
             }
         }
+
     }
 }

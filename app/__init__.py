@@ -68,16 +68,38 @@ else:
 def page_not_found(e):
     return render_template('404.html'), 404
 
+@app.route('/ajax_test',methods=['GET', 'POST'])
+def ajax_test():
+    if request.method == 'GET':
+        return render_template('ajax_test.html', flag=0)
+    elif request.method == 'POST':
+        result = request.form.get('c1')
+        print(result)
+        result = request.form.get('c2')
+        print(result)
+        result = request.files.get('img')
+        print(result)
+        upload_path = "app/static/upload_img/"+str(int(time.time())) + ".jpg"
+        result.save(upload_path)
+        # t = request.get_json()
+        # print(t)
+        # name = request.form.get('data1')
+        # num = request.form.get('data2')
+        # print(name)
+        # print(num)
+        return jsonify(name="name",num=123123)
 
 
 @app.route('/', endpoint='upload', methods=['GET', 'POST'])
 def index():
     if request.method == 'GET':
-        return render_template('Index.html', flag=0)
+        return render_template('index_v2.html', flag=0)
     elif request.method == 'POST':
+        print("post")
         # 获取用户上传的图片，保存；并且保留图片流返回给前端显示
         upload_path = "app/static/upload_img/upload_pil_" + str(int(time.time())) + ".jpg"
-        fp = request.files.get('file')
+        fp = request.files.get('img')
+        print(fp)
         fp.save(upload_path)
 
         # img = fp.read()
@@ -105,6 +127,14 @@ def index():
         # Face detection.
         upload_encoding = faceEncodingPipeline(upload_path)
         # todo:确认上传的照片是否有人脸，否则返回提示页面
+
+        #! test ajax api.
+        top6ModelsInfo = Face_comparision_api(upload_encoding)
+        # return jsonify(img_rtn=base64.b64encode(imgByteArr).decode('utf-8'),
+        #                top6ModelsInfo = top6ModelsInfo)
+        return render_template('response_top_n_info.html',
+                               flag=1,
+                               top6ModelsInfo = top6ModelsInfo)
 
         if search_mode=="1":
             # 与数据库里的encoding比较
