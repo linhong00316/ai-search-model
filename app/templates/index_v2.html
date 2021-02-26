@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../static/index.css?v=0.3.0">
+    <title>Search for Models</title>
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.5.1.min.js"></script>
+    <script src="../static/show_rawImg.js"></script>
+    <script src="../static/show_selectedImg.js"></script>
+    <script src="../static/upload_pic_func.js"></script>
+
+</head>
+<body>
+<h1>Search For Models</h1>
+<div>
+    <div class="container">
+        <div class="section">
+            <h3 class="func_name">Input</h3>
+            <div class="canvas_wrapper" style="max-height: 400px;height: auto;padding: 10px;text-align: center;">
+                <canvas id="select_pic_canvas" width="400px" height="400px">
+                </canvas>
+                {#  <button type="button" value="click" onclick="setImage()"></button>#}
+                {#  <img style="width: 400px" src="data:;base64,{{ img_model }}">#}
+            </div>
+            <div align="center">
+                <label class="btn" for=select_pic>Choose..</label>
+                <input id="select_pic" type="file" name="file" accept=".png,.jpg,.jpeg"
+                       onchange="show_selectedImage(); check_submit()">
+            </div>
+
+        </div>
+        <div class="section">
+            <form id="setting_form" action="">
+                <h3 class="func_name">Setting</h3>
+                <div class="container">
+                    <div class="setting">
+                        <input type="text" name="isTest" value="10101" hidden="hidden">
+                        <h4 class="setting_name">推荐系统运行模式</h4>
+                        <input type="radio" id="radio_test" name="search_mode" value=1 checked>
+                        <label for="radio_test">人脸相似</label>
+                        <input type="radio" name="search_mode" value=2>人脸语义相似
+                        <input type="radio" name="search_mode" value=3>综合Mode
+                    </div>
+                    <div class="setting">
+                        <h4 class="setting_name">返回结果个数</h4>
+                        <input type="radio" name="return_num" value=1>1
+                        <input type="radio" name="return_num" value=4>4
+                        <input type="radio" name="return_num" value=6 checked>6
+                    </div>
+                </div>
+
+                <div class="container">
+                    <div class="setting">
+                        <h4 class="setting_name">预留设置卡片</h4>
+                        <input type="radio" name="no" value=1>NULL
+                        <input type="radio" name="no" value=3>NULL
+                        <input type="radio" name="no" value=5>NULL
+                    </div>
+                    <div class="setting">
+                        <h4 class="setting_name">预留设置卡片</h4>
+                        <input type="radio" name="no" value=1>NULL
+                        <input type="radio" name="no" value=3>NULL
+                        <input type="radio" name="no" value=5>NULL
+                    </div>
+                </div>
+
+            </form>
+            <div class="">
+                <div align="center">
+                    {#                        <input id="submit_btn" type="submit" class="btn" value="Submit" disabled="disabled"/>#}
+                    <button id="submit_btn" class="btn" disabled="disabled"
+                            onclick="upload_pic_func()">Submit
+                    </button>
+
+                    <script type="text/javascript">
+                        function check_submit() {
+                            if (document.getElementById("select_pic").files == null) {
+                                document.getElementById("submit_btn").disabled = true;
+                                console.log("file null")
+                            } else {
+                                console.log("file got.")
+                                document.getElementById("submit_btn").disabled = false;
+                            }
+
+                        }
+                    </script>
+                    {# <input type="button" class="btn" value="Submit" onclick="submit_func()">#}
+                </div>
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <div class="result">
+        <div class="section">
+            <h3 class="func_name">Output</h3>
+            <div class="result" id="result_test">
+
+            </div>
+        </div>
+    </div>
+
+
+    {#    <div class="result">#}
+    {#        {% set isHidden = "" %}#}
+    {#        {% if flag == 1 %}#}
+    {#            {% set isHidden = "hidden=\"hidden\"" %}#}
+    {#        {% endif %}#}
+    {#        {% for i in range(6) %}#}
+    {#            <div class="result_section">#}
+    {#                <div class="top-5">#}
+    {#                    <canvas class="show_result_canvas" id="no1" {{ isHidden }}>#}
+    {#                    </canvas>#}
+    {#                    {% if flag==1 %}#}
+    {#                        <img width="220px" height="100%" src="data:;base64,{{ top6ModelsInfo[i]['img_stream'] }}">#}
+    {##}
+    {##}
+    {#                        <div class="info">#}
+    {#                            <h3 class="h3_info">Name:#}
+    {#                                <span class="h3_info_name">{{ top6ModelsInfo[i]['name'].replace("_"," ") }}</span>#}
+    {#                            </h3>#}
+    {#                            <h3 class="h3_info">E-mail:</h3>#}
+    {#                        </div>#}
+    {#                    {% else %}#}
+    {#                        <div class="info">#}
+    {#                            <h3 class="h3_info">Name:</h3>#}
+    {#                            <h3 class="h3_info">E-mail:</h3>#}
+    {#                        </div>#}
+    {#                    {% endif %}#}
+    {##}
+    {#                </div>#}
+    {#            </div>#}
+    {#        {% endfor %}#}
+    {#    </div>#}
+
+
+</div>
+
+
+<footer>Made By CZD</footer>
+
+</body>
+</html>

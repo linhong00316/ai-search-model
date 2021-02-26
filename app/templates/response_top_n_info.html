@@ -1,0 +1,29 @@
+{% set isHidden = "" %}
+{% if flag == 1 %}
+    {% set isHidden = "hidden=\"hidden\"" %}
+{% endif %}
+{% for i in range(6) %}
+    <div class="result_section">
+        <div class="top-5">
+            <canvas class="show_result_canvas" id="no1" {{ isHidden }}>
+            </canvas>
+            {% if flag==1 %}
+                <img width="220px" height="100%" src="data:;base64,{{ top6ModelsInfo[i]['img_stream'] }}">
+
+
+                <div class="info">
+                    <h3 class="h3_info">Name:
+                        <span class="h3_info_name">{{ top6ModelsInfo[i]['name'].replace("_"," ") }}</span>
+                    </h3>
+                    <h3 class="h3_info">E-mail:</h3>
+                </div>
+            {% else %}
+                <div class="info">
+                    <h3 class="h3_info">Name:</h3>
+                    <h3 class="h3_info">E-mail:</h3>
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+{% endfor %}
