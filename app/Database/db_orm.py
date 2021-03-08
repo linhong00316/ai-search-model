@@ -13,6 +13,7 @@ class TblModel(db.Model):
     mail = db.Column(db.String(100))
     face_encoding = db.Column(db.JSON)
     pic_path = db.Column(db.String(100))
+    attribute_encoding = db.Column(db.JSON)
 
     def get_dict(self):
         return {
@@ -21,5 +22,15 @@ class TblModel(db.Model):
             'sex':self.sex,
             'mail':self.mail,
             'face_encoding':self.face_encoding,
-            'pic_path':self.pic_path
+            'pic_path':self.pic_path,
+            'attribute_encoding':self.attribute_encoding
         }
+
+class TblBusines(db.Model):
+    __tablename__ = 'Tbl_business'
+
+    id_business = db.Column(db.Integer, primary_key=True)
+    business_name = db.Column(db.String(100), server_default=db.FetchedValue())
+    face_encodings = db.Column(db.JSON, nullable=False)
+    attribute_encodings = db.Column(db.JSON)
+    pic_path = db.Column(db.JSON)
