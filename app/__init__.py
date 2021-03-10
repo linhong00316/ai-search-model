@@ -4,13 +4,16 @@ from config import config
 
 # import flask_sqlalchemy
 from flask_sqlalchemy import SQLAlchemy
-from flask_sqlalchemy import BaseQuery
+
+
+from sqlalchemy import select
 
 import os
 import time
 import io
 import base64
 from PIL import Image
+import json
 
 
 # app创建，建议后面优化时写成一个函数，返回创建的app实例
@@ -20,7 +23,8 @@ app.config.from_object(config['development'])
 
 db = SQLAlchemy(app)
 
-from app.Database.db_orm import TblModel
+import app.FD.face_detection_func as FD
+from app.Database.db_orm import TblModel,TblBusiness
 from app.FA.face_attribute_func import get_FA_model, FA_detect
 from app.FD.face_detection_func import calFaceDistance,faceEncodingPipeline,getTop6FaceComparision
 
@@ -89,6 +93,20 @@ def ajax_test():
         # print(num)
         return jsonify(name="name",num=123123)
 
+
+@app.route('/business_test', methods=['GET','POST'])
+def business_test():
+    # res = TblBusiness.query.filter_by(business_name='nike').all()
+    # print(res[0])
+    # print(len(res))
+    # print(res[0].attribute_encodings)
+    res = TblBusiness.query.filter_by(id_business=1002).all()
+    print(res)
+    print(TblBusiness.query.filter_by(id_business=1002).first())
+    best = FD.getStyleFromFaceComparision_mean(test_encoding)
+    best_2 = FD.getStyleFromFaceComparision_minimum(test_encoding)
+
+    return jsonify(best=best,best_2=best_2)
 
 @app.route('/', endpoint='upload', methods=['GET', 'POST'])
 def index():

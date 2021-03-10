@@ -4,14 +4,19 @@ import time
 
 from flask_sqlalchemy import SQLAlchemy
 from flask_sqlalchemy import BaseQuery
-from app.Database.db_orm import TblModel
+from app.Database.db_orm import TblModel,TblBusiness
 
 
+list_business_name=["nike","uniqlo",
+                    "muji","longines",
+                    "adidas","tiffany",
+                    "zara","chanel","hm"]
 
 
 def calFaceDistance(face_encodings,face_to_compare):
     '''
     计算face之间的欧氏距离
+
     :param face_encodings: 数据库中的face encodings.
     :param face_to_compare: 输入的用于比较的face encoding.
     :return: distance
@@ -28,8 +33,9 @@ def calFaceDistance(face_encodings,face_to_compare):
 def faceEncodingPipeline(real_path):
     '''
     正常的人脸检测与编码
-    :param real_path:
-    :return:
+
+    :param real_path: 图像路径
+    :return: encoding: 128维向量
     '''
     start = time.time()
     image = face_recognition.load_image_file(real_path)
@@ -53,7 +59,9 @@ def faceEncodingPipeline(real_path):
 
 def getTop6FaceComparision(uplaod_encoding):
     '''
-    获取
+    [for model-feature, not for business-feature]
+    获取前6个最相似的人脸。
+
     :param uplaod_encoding: 上传的图片的encoding
     :return: dict of top 6 models
     '''
@@ -120,3 +128,75 @@ def getTop6FaceComparision(uplaod_encoding):
         count+=1
 
     return top6ModelsInfo
+
+def getStyleFromFaceComparision_mean(upload_encoding):
+    '''
+    [for business-feature] 此函数是以单个business下所有model的相似值的平均值为标准。
+
+    :param upload_encoding:
+    :return: list 前三最佳business_name。
+    '''
+
+    distances_of_business = {}
+    for b_name in list_business_name:
+        business_model_data = TblBusiness.query.filter_by(business_name=b_name).all()
+        nums_of_model = len(business_model_data)
+        encodings=[]
+        ids=[]
+        for i in range(nums_of_model):
+            encodings.append(business_model_data[i].face_encodings)
+            # ids.append(business_model_data[i].id_business)
+
+        distances = calFaceDistance(np.array(encodings), np.array(upload_encoding))
+        print(distances)
+        mean_distances =  np.mean(distances)
+        print(mean_distances)
+
+        distances_of_business[b_name] = mean_distances.copy()
+
+    print(distances_of_business)
+    # 取dict中的value做排序，此处维升序，找最小distance.
+    list_sorted_distances = sorted(distances_of_business.items(),key=lambda a:a[1])
+    print(list_sorted_distances)
+
+
+    return [list_sorted_distances[i][0] for i in range(3)]
+
+def getStyleFromFaceComparision_minimum(upload_encoding):
+    '''
+    [for business-feature] 此函数是以单个model最相似为标准。
+
+    :param upload_encoding:
+    :return: dict 前六个最相似model的信息(business_name, pic_path)
+    '''
+    business_model_data = TblBusiness.query.all()
+    nums_of_model = len(business_model_data)
+    encodings=[]
+    ids=[]
+    print(nums_of_model)
+    for i in range(nums_of_model):
+        encodings.append(business_model_data[i].face_encodings)
+        ids.append(business_model_data[i].id_business)
+    distances = calFaceDistance(np.array(encodings), np.array(upload_encoding))
+
+    dict_distances_of_business = dict(zip(distances,ids))
+    list_sorted_distances = sorted(dict_distances_of_business)
+    # print(dict_distances_of_business)
+    print(list_sorted_distances)
+
+    # business_name, pic_path
+    top6_model_info={}
+    for n in range(6):
+        id_temp = int(dict_distances_of_business[list_sorted_distances[n]])
+        print(list_sorted_distances[n])
+        result = TblBusiness.query.filter_by(id_business=id_temp).first()
+        top6_model_info[n] = result.get_showing_dict().copy()
+
+    print(top6_model_info)
+    return top6_model_info
+
+
+
+
+
+
