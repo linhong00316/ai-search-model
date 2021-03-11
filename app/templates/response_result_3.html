@@ -1,0 +1,23 @@
+{% for i in range(3) %}
+    <div class="result_3_section">
+        <div class="result_3_top_5">
+            <img style=" width:220px;"
+                 src="../static/business_logo/{{ top3BusinessNames[i]['name']}}.jpg">
+
+{#            <div class="info">#}
+{#                <span class="business_name">#}
+{#                    {{ top3BusinessNames[i] }}#}
+{#                </span>#}
+{#            </div>#}
+
+        </div>
+
+            <div style="margin: 0.5rem 0.5rem;">
+                <p style="font-size: 18px;margin: 0 0;">{{ top3BusinessNames[i]['name']}}</p>
+                <p style="font-size: 13px;word-break: break-word">
+                    {{ top3BusinessNames[i]['intro']}}
+                </p>
+            </div>
+
+    </div>
+{% endfor %}

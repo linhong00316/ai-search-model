@@ -15,7 +15,12 @@ function upload_pic_func() {
             data: formData,
             success: function (data) {
                 console.log("success");
-                $('#result_test').append(data);
+                $('#result_1').empty();
+                $('#result_2').empty();
+                $('#result_3').empty();
+                $('#result_1').append(data['r1']);
+                $('#result_2').append(data['r2']);
+                $('#result_3').append(data['r3']);
             },
             error: function (xhr, type) {
             }

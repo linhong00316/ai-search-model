@@ -26,7 +26,8 @@ db = SQLAlchemy(app)
 import app.FD.face_detection_func as FD
 from app.Database.db_orm import TblModel,TblBusiness
 from app.FA.face_attribute_func import get_FA_model, FA_detect
-from app.FD.face_detection_func import calFaceDistance,faceEncodingPipeline,getTop6FaceComparision
+from app.FD.face_detection_func import calFaceDistance,faceEncodingPipeline,getTop6FaceComparision,\
+    getStyleFromFaceComparision_minimum,getStyleFromFaceComparision_mean
 
 
 
@@ -52,10 +53,25 @@ test_user = {'name': 'test_user',
              'pic_path': '/pic/test.jpg',
              'black_hair': 0}
 
+business_intro_text = {
+    "adidas":"adidas（阿迪达斯）创办于1949年，是德国运动用品制造商阿迪达斯AG成员公司。以其创办人阿道夫·阿迪·达斯勒（Adolf Adi Dassler）命名，1920年在黑措根奥拉赫开始生产鞋类产品。1949年8月18日以adidas AG名字登记。阿迪达斯原本由两兄弟共同开设，在分道扬镳后，阿道夫的哥哥鲁道夫·达斯勒 （Rudolf Dassler）开设了运动品牌puma。其经典广告语：“没有不可能”（Nothing is impossible）。2011年3月，斥资1.6亿欧元启用全新口号——adidas is all in（全倾全力）。",
+    "uniqlo":"优衣库（英文名称：UNIQLO，日文假名发音：ユニクロ），为日本迅销公司的核心品牌，建立于1984年，当年是一家销售西服的小服装店，现在已经是家喻户晓的品牌。优衣库(Uniqlo) 的内在涵义是指通过摒弃了不必要装潢装饰的仓储型店铺，采用超市型的自助购物方式，以合理可信的价格提供顾客希望的商品。现任董事长兼总经理柳井正，在日本首次引进了大卖场式的服装销售方式，通过独特的商品策划、开发和销售体系来实现店铺运作的低成本化，由此引发了优衣库的热卖潮。在2018世界品牌500强排行榜中，优衣库排名第168位。",
+    "chanel":"香奈儿（Chanel）是法国奢侈品品牌，创始人是Coco Chanel（原名是Gabrielle Bonheur Chanel ，中文名是加布里埃·香奈儿），该品牌于1910年在法国创立。该品牌产品种类繁多，有服装、珠宝饰品及其配件、化妆品、护肤品、香水等。该品牌的时装设计有高雅、简洁、精美的风格，在20世纪40年代就成功地将“五花大绑”的女装推向简单、舒适的设计。2018年12月18日，世界品牌实验室编制的《2018世界品牌500强》揭晓，香奈儿位列44位。2019年10月，Interbrand发布的全球品牌百强榜排名22",
+    "hm":"H&M是Erling Persson于1947年在瑞典创立的服饰品牌。如今，H&M在全世界1500 多个专卖店销售服装、配饰与化妆品，H&M横扫欧洲街头，得力于公司兼顾流行、品质及价格的三合一哲学，以及积极扩张的政策。位于瑞典市Stora Gatan大街的老H&M店是世界上第一家H&M专卖店。H&M品牌名是由“Hennes” （瑞典语中“她”的意思） 女装与“Mauritz”男装品牌合并，各取第一个字母而成“H&M”。",
+    "longines":"浪琴（LONGINES）于1832年在瑞士索伊米亚创立，拥有逾180多年的悠久历史与精湛工艺，在运动计时领域亦拥有显赫传统与卓越经验。以飞翼沙漏为标志的浪琴表以优雅著称于世，作为全球领先钟表制造商斯沃琪集团旗下的著名品牌，浪琴表已遍布世界150多个国家。浪琴作为世界锦标赛的计时器及国际联合会的合作伙伴，浪琴表品牌以其优雅的钟表享誉全球，亦是世界领先钟表制造商 Swatch Group S.A. 公司的旗下一员。2018年12月，世界品牌实验室发布《2018世界品牌500强》榜单，浪琴排名第324。",
+    "muji":"1980年無印良品诞生于日本，主推服装、生活杂货、食品等各类优质商品。無印良品是指“没有名字的优良商品”。無印良品自始至终坚持3个基本原则：1．原材料的选择； 2．工序的改善；3．包装的简化。从合理的生产工序中诞生的商品非常简洁，但就风格而言却并非极简主义。就如“空的容器”一样。正因为其单纯、空白，所以那里才诞生了能够容纳所有人思想的自由性。",
+    "nike":"NIKE公司总部位于美国俄勒冈州波特兰市。公司生产的体育用品包罗万象，例如服装，鞋类，运动器材等。NIKE是全球著名的体育运动品牌，英文原意指希腊胜利女神，中文译为耐克。耐克商标图案是个小钩子。耐克一直将激励全世界的每一位运动员并为其献上最好的产品视为光荣的任务。耐克首创的气垫技术给体育界带来了一场革命。运用这项技术制造出的运动鞋可以很好地保护运动员的膝盖.在其在作剧烈运动落地时减小对膝盖的影响。",
+    "tiffany":"Tiffany & Co.（蒂芙尼），珠宝界的皇后，以钻石和珠宝腕表著称。1837年诞生于美国纽约。Tiffany自1837年成立以来，一直将设计富有惊世之美的原创作品视为宗旨。事实证明，Tiffany珠宝不仅能将恋人的心声娓娓道来，其独创的银器、文具和餐桌用具更是令人心驰神往。“经典设计”是Tiffany作品的定义，也就是说，每件令人惊叹的Tiffany杰作都可以世代相传。",
+    "zara":"ZARA 是1975年设立于西班牙隶属Inditex集团（股票代码ITX）旗下的一个子公司，既是服装品牌也是专营ZARA品牌服装的连锁零售品牌。ZARA是全球排名第三、西班牙排名第一的服装商，在87个国家内设立超过两千多家的服装连锁店。ZARA深受全球时尚青年的喜爱，设计师品牌的优异设计价格却更为低廉，简单来说就是让平民拥抱High Fashion。Inditex是西班牙排名第一，超越了美国的GAP、瑞典的H&M、丹麦的KM成为全球排名第一的服装零售集团。"
+}
+
 # 创建实例结束
 
 
 # app.config['IS_FA_NET_USED'] = True
+
+
+# todo GPU初始化
 
 if app.config['IS_FA_NET_USED']:
     try:
@@ -145,15 +161,36 @@ def index():
         # Face detection.
         upload_encoding = faceEncodingPipeline(upload_path)
         # todo:确认上传的照片是否有人脸，否则返回提示页面
+        print(len(upload_encoding[0]))
+        if len(upload_encoding[0])!=128:
+            return render_template('404.html')
 
-        #! test ajax api.
-        top6ModelsInfo = Face_comparision_api(upload_encoding)
+
+        output_result_1 = Face_comparision_api(upload_encoding)
         # return jsonify(img_rtn=base64.b64encode(imgByteArr).decode('utf-8'),
         #                top6ModelsInfo = top6ModelsInfo)
-        return render_template('response_top_n_info.html',
-                               flag=1,
-                               top6ModelsInfo = top6ModelsInfo)
 
+        render_1 = render_template('response_top_n_info.html',
+                               flag=1,
+                               top6ModelsInfo = output_result_1)
+
+        output_result_2 = business_FD_minimum_api(upload_encoding)
+
+        render_2 = render_template('response_result_2.html',
+                               flag=1,
+                               top6ModelsInfo = output_result_2)
+
+        output_result_3 =  business_FD_mean_api(upload_encoding)
+        render_3 = render_template('response_result_3.html',
+                                   top3BusinessNames = output_result_3)
+
+
+        return jsonify(r1=render_1,
+                       r2=render_2,
+                       r3=render_3)
+        # return render_template('response_top_n_info.html',
+        #                        flag=1,
+        #                        top6ModelsInfo=top6ModelsInfo)
         if search_mode=="1":
             # 与数据库里的encoding比较
             print("Start Face Comparision.")
@@ -213,19 +250,44 @@ def FA_detect_api(pic_path):
     return result_json
 
 
-# @app.route('/encoding_test',methods=['GET', 'POST'])
+
 def Face_comparision_api(upload_encoding):
-    top6ModelInfo = getTop6FaceComparision(upload_encoding)
+    top6_model_info = getTop6FaceComparision(upload_encoding)
     # 将服务器端的图片转为img stream，准备送给前端
     for i in range(6):
         # print(top6ModelInfo[i])
-        fp = open(top6ModelInfo[i]['pic_path'],'rb')
+        fp = open(top6_model_info[i]['pic_path'],'rb')
         img_stream = fp.read()
         img_coded = base64.b64encode(img_stream).decode('utf-8')
-        top6ModelInfo[i]['img_stream'] = img_coded
+        top6_model_info[i]['img_stream'] = img_coded
 
     # return jsonify(top6ModelInfo)
-    return  top6ModelInfo
+    return top6_model_info
+
+
+def business_FD_minimum_api(upload_encoding):
+    top6_model_info = getStyleFromFaceComparision_minimum(upload_encoding)
+    for i in range(6):
+        fp = open(top6_model_info[i]['pic_path'],'rb')
+        img_stream = fp.read()
+        img_coded = base64.b64encode(img_stream).decode('utf-8')
+        top6_model_info[i]['img_stream'] = img_coded
+
+    return top6_model_info
+
+
+def business_FD_mean_api(upload_encoding):
+    list_top3_business_names = getStyleFromFaceComparision_mean(upload_encoding)
+    dict_result={}
+    for n in range(len(list_top3_business_names)):
+        dict_result[n] = {
+            "name":list_top3_business_names[n],
+            "intro":business_intro_text[list_top3_business_names[n]]
+        }
+
+    return dict_result
+
+
 
 @app.route('/hello', methods=['GET', 'POST'])
 def hello_world():

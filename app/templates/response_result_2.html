@@ -1,0 +1,19 @@
+{% for i in range(6) %}
+    <div class="result_section">
+        <div class="top-5">
+            <img style=" width:220px; height:288px;z-index: 1;"
+                 src="data:;base64,{{ top6ModelsInfo[i]['img_stream'] }}">
+            <img style="z-index: 2;position: absolute;width: 50px;"
+                 src="../static/business_logo/{{ top6ModelsInfo[i]['business_name'] }}.jpg">
+
+            <div class="info">
+                <h3 class="h3_info">Model comes from:
+                    <span class="h3_info_name">
+                                        {{ top6ModelsInfo[i]['business_name'] }}
+                                    </span>
+                </h3>
+            </div>
+
+        </div>
+    </div>
+{% endfor %}
