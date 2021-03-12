@@ -26,6 +26,8 @@ class ProductionConfig(Config):  # 继承config基类
     UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'main/media')
     UPLOADED_PHOTOS_DEST = os.path.join(os.path.dirname(__file__), 'main/media/images')
 
+    FA_NETWORK_MODEL_PATH = "/home/czd-2019/Projects/MTL-face-attribute-classification/checkpoint_Jan08_structure_2_fixbugs_fixSAbugs_mid2_mid3_acc9220_epoch59/checkpoint_epoch59.pth"
+
 
 class DevelopmentConfig(Config):
     ##开发人员使用的Config
@@ -36,6 +38,7 @@ class DevelopmentConfig(Config):
     # SECRET_KEY = 'This is my key'
     SQLALCHEMY_TRACK_MODIFICATIONS = True
 
+    FA_NETWORK_MODEL_PATH = "/home/czd-2019/Projects/MTL-face-attribute-classification/checkpoint_Jan08_structure_2_fixbugs_fixSAbugs_mid2_mid3_acc9220_epoch59/checkpoint_epoch59.pth"
 
 class TestingConfig(Config):
     # 用于测试的config类

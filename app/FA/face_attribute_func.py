@@ -11,13 +11,8 @@ from torchvision import datasets, models, transforms
 # from self_network.celeba import CelebA
 # from .model_res import *
 
-import torch.optim as optim
-import torch.nn.functional as F
-from os.path import exists, join, basename, dirname
-from os import makedirs, remove
-import shutil
-from torch.optim import lr_scheduler
-import math
+from .model_structure import StructureCheck
+
 import PIL.Image as Image
 
 # import matplotlib.pyplot as plt
@@ -48,17 +43,43 @@ dict_eyes = {0: "柳叶眉",
 dict_list = [dict_haircolor, dict_haircut, dict_sex, dict_beard, dict_skin, dict_eyes]
 
 
+def multi_gpu_init():
+    '''
+    !!! 有致命错误！请勿使用！
+
+    :return:
+    '''
+
+    try:
+        torch.distributed.init_process_group(backend='nccl',
+                                             init_method='tcp://127.0.0.1:10085',
+                                             rank=0,
+                                             world_size=1)
+        print("Multi-GPU init success!")
+        return True
+    except OSError:
+        print("[ERROR]: Multi-GPU init error!")
+        return False
+
+
 def get_FA_model(weight_path):
     '''
     Init face attribute model.
     :param weight_path: the path of weight file.(*.pth)
     :return: model
     '''
-    model = AttrPre()
-    model.to(device)
+    model = StructureCheck()
+    model.cuda()
+    # model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[0, 1])
 
-    weight = torch.load(weight_path)
-    model.load_state_dict(weight)
+    if os.path.isfile(weight_path):
+        print("=> loading checkpoint '{}'".format(weight_path))
+
+        checkpoint = torch.load(weight_path)
+        model.load_state_dict(checkpoint['model_state_dict'])
+
+    # weight = torch.load(weight_path)
+    # model.load_state_dict(weight)
 
     return model
 
