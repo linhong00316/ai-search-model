@@ -309,6 +309,27 @@ def get_profile():
         # print(post_name)
         return post_name + " " + post_num
 
+@app.route('/test_api',methods=['GET'])
+def test_api():
+    if request.method == 'GET':
+        id = request.args.get('id')
+        print(type(id))
+        # name = request.args.get('')
+         # = request.args.get('id')
+        result = TblModel.query.filter_by(id_model=id).first()
+        # print(len(result))
+        if result is None:
+            return render_template('404.html'), 404
+
+        total = result.get_dict()
+        fp = open(total['pic_path'],'rb')
+        img_stream = fp.read()
+        img_coded = base64.b64encode(img_stream).decode('utf-8')
+
+        total['img_stream'] = img_coded
+
+        return jsonify(total)
+
 
 @app.route('/upload_image', methods=["POST"])
 def get_image():
