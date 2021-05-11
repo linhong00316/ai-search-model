@@ -1,6 +1,7 @@
 from flask import Flask
 from flask import Response, request, render_template, jsonify, abort, redirect, url_for, send_file
 from config import config
+import numpy as np
 
 # import flask_sqlalchemy
 from flask_sqlalchemy import SQLAlchemy
@@ -219,6 +220,76 @@ def index():
 #
 #     return jsonify(final_result)
 
+
+@app.route('/cold_start',methods=['GET', 'POST'])
+def cold_start():
+    """
+    input: 数组(model_id)
+   """
+    cold_start_model_id=[92,46,171,33,119,64]
+    cold_start_model_info = []
+    for i in cold_start_model_id:
+        cold_start_model_info.append(TblModel.query.filter_by(id_model=i).first().get_dict())
+
+
+    if(len(cold_start_model_info)!= 6):
+        return render_template('404.html'), 404
+
+    if request.method == 'GET':
+        # todo: 6 img stream to frontend.
+        show_img_dicts = []
+        for i in range(len(cold_start_model_id)):
+            temp_img_stream_coded = get_img_stream(cold_start_model_info[i]['pic_path'])
+            temp_dict = {}
+            temp_dict['id'] = cold_start_model_id[i]
+            temp_dict['img_stream'] = temp_img_stream_coded
+            show_img_dicts.append(temp_dict)
+
+
+
+        return render_template('cold_start.html',show_img_dicts = show_img_dicts)
+
+        # return jsonify(cold_start_model_info)
+    elif request.method == 'POST':
+        print("post")
+        favor_ids_list = request.form.getlist("favor")
+        print(favor_ids_list)
+        print(cold_start_model_id)
+        favor_encoding = []
+        for i in favor_ids_list:
+            temp_pic_path = cold_start_model_info[cold_start_model_id.index(int(i))]['pic_path']
+            temp_encoding = faceEncodingPipeline(temp_pic_path)
+            favor_encoding.append(temp_encoding)
+
+        favor_encoding_np = np.array(favor_encoding)
+        mean_encoding = favor_encoding_np.mean(axis=0)
+
+
+        print(mean_encoding.shape)
+
+        output_result_1 = Face_comparision_api(mean_encoding)
+        # return jsonify(img_rtn=base64.b64encode(imgByteArr).decode('utf-8'),
+        #                top6ModelsInfo = top6ModelsInfo)
+
+        render_1 = render_template('response_top_n_info.html',
+                                   flag=1,
+                                   top6ModelsInfo=output_result_1)
+
+        output_result_2 = business_FD_minimum_api(mean_encoding)
+
+        render_2 = render_template('response_result_2.html',
+                                   flag=1,
+                                   top6ModelsInfo=output_result_2)
+
+        output_result_3 = business_FD_mean_api(mean_encoding)
+        render_3 = render_template('response_result_3.html',
+                                   top3BusinessNames=output_result_3)
+
+        return jsonify(r1=render_1,
+                       r2=render_2,
+                       r3=render_3)
+        # return {"info":"hello"}
+
 @app.route('/db_test',methods=['GET', 'POST'])
 def db_try():
     result = TblModel.query.filter_by(id_model=1001)
@@ -227,11 +298,11 @@ def db_try():
     print(encoding)
     return jsonify(encoding.get_dict())
 
-@app.route('/vue_test',methods=['GET', 'POST'])
-def vue_test():
-    return render_template('vue_test.html')
 
-
+################ Key Function API Code -- START ######################
+'''
+Key Function API Code
+'''
 def FA_detect_api(pic_path):
     final_result = FA_detect(model=FA_model,
                              pic_path=pic_path)
@@ -287,12 +358,25 @@ def business_FD_mean_api(upload_encoding):
 
     return dict_result
 
+################ Key Function API Code -- END ######################
 
 
-@app.route('/hello', methods=['GET', 'POST'])
-def hello_world():
-    # return 'Hello Flask!'
-    return render_template('select_info.html', new_user=new_name)
+################ Utils Function -- START ####################
+def get_img_stream(pic_path:str):
+    fp = open(pic_path, 'rb')
+    img_stream = fp.read()
+    img_coded = base64.b64encode(img_stream).decode('utf-8')
+    return img_coded
+
+
+
+################ Utils Function -- END ####################
+
+
+# @app.route('/hello', methods=['GET', 'POST'])
+# def hello_world():
+#     # return 'Hello Flask!'
+#     return render_template('select_info.html', new_user=new_name)
 
 
 @app.route('/profile', methods=['GET', 'POST'])

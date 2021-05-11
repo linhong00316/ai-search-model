@@ -5,7 +5,7 @@ from app import db
 
 
 class TblModel(db.Model):
-    __tablename__ = 'Tbl_model'
+    __tablename__ = 'Tbl_model_fa'
 
     id_model = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), server_default=db.FetchedValue())
