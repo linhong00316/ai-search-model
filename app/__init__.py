@@ -26,7 +26,7 @@ db = SQLAlchemy(app)
 
 import app.FD.face_detection_func as FD
 from app.Database.db_orm import TblModel,TblBusiness
-from app.FA.face_attribute_func import get_FA_model, FA_detect
+from app.FA.face_attribute_func import multi_gpu_init, get_FA_model, FA_detect
 from app.FD.face_detection_func import calFaceDistance,faceEncodingPipeline,getTop6FaceComparision,\
     getStyleFromFaceComparision_minimum,getStyleFromFaceComparision_mean
 
@@ -69,14 +69,18 @@ business_intro_text = {
 # 创建实例结束
 
 
-# app.config['IS_FA_NET_USED'] = True
+app.config['IS_FA_NET_USED'] = True
 
 
-# todo GPU初始化
+# todo multi-GPU初始化
+#! 有致命错误！！！在关闭flask app的时候，nccl似乎有冲突，导致gpu离线。
+#! 需重新设计此函数。初步估计问题在于，multi gpu的distributed后端如何在flask app结束时，
+#  释放资源。
+# isGPUInit = multi_gpu_init()
 
 if app.config['IS_FA_NET_USED']:
     try:
-        FA_model = get_FA_model("flask_demo/face_attribute_net/test.pth")
+        FA_model = get_FA_model(app.config['FA_NETWORK_MODEL_PATH'])
         print("Face attribute net init success!")
     except OSError:
         print("[ERROR]: Face attribute net init error!")
